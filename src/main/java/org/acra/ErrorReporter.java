@@ -102,6 +102,8 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
     private boolean enabled = false;
     
     private UncaughtExceptionFilter uncaughtExceptionFilter = null;
+    
+    private Runnable exitHook = null;
 
     private final Application mContext;
     private final SharedPreferences prefs;
@@ -369,6 +371,27 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
     	uncaughtExceptionFilter = filter;
     }
 
+    /**
+     * Set an exit hook to run before exiting the app 
+     * 
+     * <p>
+     * Useful to clean up stuff that must be absolutely cleaned up whatever way the app is terminated
+     * 
+     * @param hook
+     *           hook to run before app exit
+     */
+    public void setExitHook(Runnable hook) {
+    	exitHook = hook;
+    }
+    
+    private void runExitHook() {
+    	if(exitHook == null) return ;
+    	
+    	Log.i(ACRA.LOG_TAG, "Running exit hook");
+    	exitHook.run();
+	}
+
+    
     /*
      * (non-Javadoc)
      * 
@@ -394,6 +417,8 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
             	} else {
             		disabledFor = mContext.getPackageName();
             	}
+            	
+            	runExitHook();
             	
                 if (mDfltExceptionHandler != null) {
                     Log.e(ACRA.LOG_TAG, "ACRA is disabled for " + disabledFor
@@ -425,10 +450,13 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    /**
+	/**
      * 
      */
     private void endApplication() {
+    	
+    	runExitHook();
+    	
         if (ACRA.getConfig().mode() == ReportingInteractionMode.SILENT
                 || (ACRA.getConfig().mode() == ReportingInteractionMode.TOAST && ACRA.getConfig()
                         .forceCloseDialogAfterToast())) {

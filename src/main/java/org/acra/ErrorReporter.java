@@ -101,7 +101,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
 
     private boolean enabled = false;
     
-    private UncaughtExceptionFilter uncaughtExceptionFiler = null;
+    private UncaughtExceptionFilter uncaughtExceptionFilter = null;
 
     private final Application mContext;
     private final SharedPreferences prefs;
@@ -366,7 +366,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
      *            uncaught exception filter to use or null for none
      */
     public void setUncaughtExceptionFilter(UncaughtExceptionFilter filter) {
-    	uncaughtExceptionFiler = filter;
+    	uncaughtExceptionFilter = filter;
     }
 
     /*
@@ -380,8 +380,8 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
         try {
             
             boolean isFiltered = false;
-            if(uncaughtExceptionFiler != null) {
-            	isFiltered = uncaughtExceptionFiler.filter(e);
+            if(uncaughtExceptionFilter != null) {
+            	isFiltered = uncaughtExceptionFilter.filter(e);
             }
         	
             // If we're not enabled then just pass the Exception on to any

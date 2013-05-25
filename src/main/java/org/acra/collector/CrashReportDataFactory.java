@@ -346,8 +346,17 @@ public final class CrashReportDataFactory {
 
             // Application specific log file
             if (crashReportFields.contains(APPLICATION_LOG)) {
-                crashReportData.put(APPLICATION_LOG, LogFileCollector.collectLogFile(context, ACRA.getConfig()
-                        .applicationLogFile(), ACRA.getConfig().applicationLogFileLines()));
+            	
+            	String log;
+            	
+            	if(ACRA.getConfig().applicationLogCollector() == null) {
+            		log = LogFileCollector.collectLogFile(context, ACRA.getConfig()
+            				.applicationLogFile(), ACRA.getConfig().applicationLogFileLines());
+            	} else {
+            		log = ACRA.getConfig().applicationLogCollector().collect();
+            	}
+            	
+                crashReportData.put(APPLICATION_LOG, log);
             }
 
             // Media Codecs list
